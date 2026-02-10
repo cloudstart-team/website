@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>程序 - Cloudstart 云启团队</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #4a90d9;
+    --secondary: #5fa8e8;
+    --bg: #f0f4f8;
+    --card: #ffffff;
+    --text: #333333;
+    --text-light: #666666;
+}
+
+body {
+    font-family: "Microsoft YaHei", "SimHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.navbar {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    padding: 0 20px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px;
+}
+
+.logo {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.main {
+    margin-top: 60px;
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.page-header h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.page-header p {
+    color: var(--text-light);
+}
+
+.controls {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.search-box {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.search-box input {
+    flex: 1;
+    min-width: 200px;
+    padding: 12px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    font-size: 16px;
+    outline: none;
+}
+
+.search-box input:focus {
+    border-color: var(--primary);
+}
+
+.filter-tags {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tag {
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: #f0f0f0;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    font-size: 14px;
+}
+
+.tag:hover, .tag.active {
+    background: var(--primary);
+    color: white;
+}
+
+.programs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+/* 程序卡片改为链接样式 */
+.program-card {
+    background: var(--card);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s;
+    border: 2px solid transparent;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.program-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    border-color: var(--primary);
+}
+
+.program-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    margin-bottom: 15px;
+}
+
+.program-name {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: var(--text);
+}
+
+.program-desc {
+    color: var(--text-light);
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.program-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 12px;
+    color: #999;
+}
+
+.program-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-light);
+}
+
+.empty-state h3 {
+    margin-bottom: 10px;
+}
+
+.footer {
+    background: var(--text);
+    color: white;
+    text-align: center;
+    padding: 40px 20px;
+    margin-top: 60px;
+}
+
+.footer p {
+    opacity: 0.8;
+    margin: 5px 0;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="index.html" class="logo">Cloudstart 云启</a>
+        <ul class="nav-links">
+            <li><a href="index.html">首页</a></li>
+            <li><a href="code.html">程序</a></li>
+            <li><a href="about.html">关于</a></li>
+        </ul>
+    </div>
+</nav>
+
+<main class="main">
+    
+    <div class="page-header">
+        <h1>程序中心</h1>
+        <p>浏览和下载我们的应用程序</p>
+    </div>
+    
+    <div class="controls">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="搜索程序...">
+        </div>
+        <div class="filter-tags">
+            <button class="tag active" onclick="filterPrograms('all')">全部</button>
+            <button class="tag" onclick="filterPrograms('web')">网页端</button>
+            <button class="tag" onclick="filterPrograms('client')">客户端</button>
+            <button class="tag" onclick="filterPrograms('tool')">工具</button>
+            <button class="tag" onclick="filterPrograms('game')">游戏</button>
+        </div>
+    </div>
+    
+    <div class="programs-grid" id="programsGrid">
+        
+        <div class="empty-state" style="grid-column: 1 / -1;">
+            <h3>暂无程序</h3>
+            <p>请添加程序到 programs 文件夹</p>
+        </div>
+        
+    </div>
+    
+</main>
+
+<footer class="footer">
+    <p>(C) 2025 Cloudstart 云启团队</p>
+    <p>cloudstart2025@163.com</p>
+</footer>
+
+<script>
+// 程序数据（在这里添加你的程序）
+const programs = [
+    
+    {
+        id: 'yaoxing',
+        name: '耀星 (Yaoxing)',
+        desc: '一个放置游戏',
+        category: 'game',
+        hasWeb: false,
+        hasClient: true
+    }
+    
+    // 添加更多程序，复制上面的格式
+];
+
+// 渲染程序列表
+function renderPrograms(filter, search) {
+    const grid = document.getElementById('programsGrid');
+    
+    let filtered = programs;
+    
+    // 分类筛选
+    if (filter !== 'all') {
+        filtered = filtered.filter(function(p) { 
+            return p.category === filter || p.category.indexOf(filter) !== -1; 
+        });
+    }
+    
+    // 搜索筛选
+    if (search) {
+        search = search.toLowerCase();
+        filtered = filtered.filter(function(p) { 
+            return p.name.toLowerCase().indexOf(search) !== -1 ||
+                   p.desc.toLowerCase().indexOf(search) !== -1;
+        });
+    }
+    
+    // 空状态
+    if (filtered.length === 0) {
+        grid.innerHTML = 
+            '<div class="empty-state" style="grid-column: 1 / -1;">' +
+            '<h3>没有找到程序</h3>' +
+            '<p>尝试其他关键词或分类</p>' +
+            '</div>';
+        return;
+    }
+    
+    // 渲染卡片（改为链接跳转到 detail.html）
+    grid.innerHTML = filtered.map(function(p) {
+        return '<a href="programs/' + p.id + '/detail.html" class="program-card">' +
+            '<div class="program-icon">程序</div>' +
+            '<div class="program-name">' + p.name + '</div>' +
+            '<div class="program-desc">' + p.desc + '</div>' +
+            '<div class="program-meta">' +
+            (p.hasWeb ? '<span>网页端</span>' : '') +
+            (p.hasClient ? '<span>客户端</span>' : '') +
+            '</div>' +
+            '</a>';
+    }).join('');
+}
+
+// 筛选
+function filterPrograms(category) {
+    var tags = document.querySelectorAll('.tag');
+    for (var i = 0; i < tags.length; i++) {
+        tags[i].classList.remove('active');
+    }
+    event.target.classList.add('active');
+    renderPrograms(category, document.getElementById('searchInput').value);
+}
+
+// 搜索
+document.getElementById('searchInput').addEventListener('input', function(e) {
+    renderPrograms('all', e.target.value);
+});
+
+// 初始化
+renderPrograms('all', '');
+</script>
+
+</body>
+</html>

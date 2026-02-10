@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloudstart 云启团队</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #4a90d9;
+    --secondary: #5fa8e8;
+    --bg: #f0f4f8;
+    --card: #ffffff;
+    --text: #333333;
+    --text-light: #666666;
+}
+
+body {
+    font-family: "SimSun", "Microsoft YaHei", "SimHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.navbar {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    padding: 0 20px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px;
+}
+
+.logo {
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    transition: opacity 0.3s;
+}
+
+.nav-links a:hover {
+    opacity: 0.8;
+}
+
+.main {
+    margin-top: 60px;
+}
+
+.hero {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    text-align: center;
+    padding: 100px 20px;
+}
+
+.hero h1 {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 20px;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto 30px;
+}
+
+.hero-btns {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 30px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-white {
+    background: white;
+    color: var(--primary);
+}
+
+.btn-white:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.btn-outline {
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+}
+
+.btn-outline:hover {
+    background: white;
+    color: var(--primary);
+}
+
+.content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 20px;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 32px;
+    margin-bottom: 40px;
+    color: var(--text);
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-bottom: 60px;
+}
+
+.feature-card {
+    background: var(--card);
+    padding: 40px 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: transform 0.3s;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-card h3 {
+    font-size: 22px;
+    margin-bottom: 15px;
+    color: var(--text);
+}
+
+.feature-card p {
+    color: var(--text-light);
+}
+
+.footer {
+    background: var(--text);
+    color: white;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.footer p {
+    opacity: 0.8;
+    margin: 5px 0;
+}
+
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 36px;
+    }
+    
+    .nav-links {
+        gap: 15px;
+    }
+    
+    .nav-links a {
+        font-size: 14px;
+    }
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-container">
+        <a href="index.html" class="logo">Cloudstart 云启</a>
+        <ul class="nav-links">
+            <li><a href="index.html">首页</a></li>
+            <li><a href="code.html">程序</a></li>
+            <li><a href="about.html">关于</a></li>
+        </ul>
+    </div>
+</nav>
+
+<main class="main">
+    
+    <section class="hero">
+        <h1>Cloudstart 云启团队</h1>
+        <p>用代码创造价值，用创新点亮未来</p>
+        <div class="hero-btns">
+            <a href="code.html" class="btn btn-white">浏览程序</a>
+            <a href="about.html" class="btn btn-outline">了解我们</a>
+        </div>
+    </section>
+    
+    <div class="content">
+        <h2 class="section-title">我们的方向</h2>
+        <div class="features">
+            <div class="feature-card">
+                <h3>程序开发</h3>
+                <p>开发实用工具和趣味应用</p>
+            </div>
+            <div class="feature-card">
+                <h3>网页应用</h3>
+                <p>无需安装，浏览器即可使用</p>
+            </div>
+            <div class="feature-card">
+                <h3>客户端工具</h3>
+                <p>高效便捷的桌面应用程序</p>
+            </div>
+        </div>
+    </div>
+    
+</main>
+
+<footer class="footer">
+    <p>(C) 2025 Cloudstart 云启团队</p>
+    <p>cloudstart2025@163.com</p>
+</footer>
+
+</body>
+</html>
