@@ -106,55 +106,23 @@ body {
     margin-bottom: 15px;
 }
 
-/* 二维码区域 */
-.qrcode-section {
-    text-align: center;
-    padding: 30px;
-    background: #f8f9fa;
-    border-radius: 15px;
-    margin: 30px 0;
-}
-
-.qrcode-text-top {
+/* 爱发电按钮 */
+.afdian-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 15px 40px;
+    border-radius: 25px;
+    text-decoration: none;
     font-size: 18px;
-    color: var(--text);
-    margin-bottom: 20px;
     font-weight: bold;
-}
-
-.qrcode-text-bottom {
-    font-size: 16px;
-    color: var(--text-light);
-    margin-top: 20px;
-}
-
-.qrcode-img {
-    width: 250px;
-    height: 250px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-/* 赞助说明列表 */
-.sponsor-list {
-    list-style: none;
     margin: 20px 0;
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
-.sponsor-list li {
-    padding: 15px 20px;
-    background: #f8f9fa;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.sponsor-list li::before {
-    content: ">";
-    color: var(--primary);
-    font-weight: bold;
+.afdian-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(74, 144, 217, 0.4);
 }
 
 /* 金额展示 */
@@ -182,6 +150,82 @@ body {
 .amount-item .label {
     font-size: 14px;
     opacity: 0.9;
+}
+
+/* 赞助者列表 */
+.sponsors-list {
+    list-style: none;
+    margin: 20px 0;
+}
+
+.sponsors-list li {
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.3s;
+}
+
+.sponsors-list li:hover {
+    background: #e9ecef;
+}
+
+.sponsors-list li::before {
+    content: ">";
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.sponsor-date {
+    color: var(--primary);
+    font-weight: bold;
+    min-width: 100px;
+}
+
+.sponsor-name {
+    color: var(--text);
+}
+
+/* 历史记录分隔 */
+.history-divider {
+    text-align: center;
+    margin: 30px 0;
+    position: relative;
+}
+
+.history-divider::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #ddd;
+}
+
+.history-divider span {
+    background: var(--card);
+    padding: 0 20px;
+    position: relative;
+    color: var(--text-light);
+    font-size: 14px;
+}
+
+/* 加载状态 */
+.loading, .empty, .error {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-light);
+}
+
+.update-info {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 14px;
+    margin-top: 20px;
 }
 
 .footer {
@@ -231,40 +275,140 @@ body {
 
 对赞助有疑问？发送邮件至 cloudstart2025@163.com，标题注明"赞助咨询"，3 个工作日内回复。
 
-CloudStart（云启）团队承诺：所有赞助仅用于团队开发和运营。本页面最后更新：2026 年 2 月 17 日。</p>
-    </div>
-    
-    <!-- 二维码赞助 -->
-    <div class="card">
-        <h2>微信扫码赞助</h2>
-        <div class="qrcode-section">
-            <div class="qrcode-text-top">
-                请使用微信扫描二维码
-            </div>
-            <img src="images/sponsor-wechat.png" alt="微信赞助二维码" class="qrcode-img">
-            <div class="qrcode-text-bottom">
-                感谢您的慷慨支持！
-            </div>
+CloudStart（云启）团队承诺，所有赞助仅用于团队开发和运营。本页面最后更新：2026 年 2 月 17 日。</p>
+        
+        <div style="text-align: center;">
+            <a href="https://afdian.com/a/cloudstartoffice" target="_blank" class="afdian-btn">去爱发电赞助</a>
         </div>
     </div>
     
-    <!-- 赞助者名单（可选） -->
+    <!-- 赞助者名单（自动更新） -->
     <div class="card">
         <h2>赞助者名单</h2>
-        <p style="text-align: center; color: var(--text-light); padding: 40px;">
-			2026/02
-            匿名赞助者*2
-        </p>
+        
+        <div class="amount-box" id="statsBox" style="display: none;">
+            <div class="amount-item">
+                <div class="number" id="totalCount">0</div>
+                <div class="label">赞助者</div>
+            </div>
+            <div class="amount-item">
+                <div class="number" id="totalAmount">0</div>
+                <div class="label">累计金额(元)</div>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">正在加载赞助名单...</div>
+        <div id="empty" class="empty" style="display: none;">暂无赞助数据</div>
+        <div id="error" class="error" style="display: none;">加载失败，请稍后刷新</div>
+
+        <ul class="sponsors-list" id="sponsorsList" style="display: none;"></ul>
+
+        <div class="update-info" id="updateInfo"></div>
     </div>
     
 </main>
 
 <footer class="footer">
     <p>(C) 2025 Cloudstart 云启团队</p>
-    <p>cloudstart2025@163.com</p>
+    <p>cloudstar2025@163.com</p>
 </footer>
+
+<script>
+// ==================== 需要修改的配置 ====================
+
+// Cloudflare Workers API 地址（修改为你的地址）
+const API_URL = 'https://cloudstart-api.cloudstart2025.workers.dev/api/sponsors';
+
+// 历史记录（在更换为爱发电赞助前赞助的赞助者，置底显示）
+// 格式: 'YYYY-MM - 赞助者名称'
+const HISTORY_RECORDS = [
+    '2026-02 - 匿名赞助者*2'
+];
+
+// ==================== 功能代码（无需修改） ====================
+
+function formatYearMonth(timeStr) {
+    const date = new Date(timeStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
+}
+
+async function loadSponsors() {
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        
+        document.getElementById('loading').style.display = 'none';
+        
+        if (!data.success) {
+            throw new Error(data.error);
+        }
+        
+        // 计算统计数据（包含历史记录）
+        const apiSponsors = data.sponsors || [];
+        const historyCount = HISTORY_RECORDS.length > 0 ? 2 : 0; // 匿名*2 算2人
+        const totalCount = apiSponsors.length + historyCount;
+        
+        // 计算总金额（API数据 + 历史记录估算，这里假设匿名*2共100元，你可以修改）
+        const historyAmount = 101; // 修改这里：历史记录的总金额
+        const totalAmount = apiSponsors.reduce((sum, s) => sum + s.amount, 0) + historyAmount;
+        
+        document.getElementById('totalCount').textContent = totalCount;
+        document.getElementById('totalAmount').textContent = Math.floor(totalAmount);
+        document.getElementById('statsBox').style.display = 'grid';
+        
+        const listEl = document.getElementById('sponsorsList');
+        let html = '';
+        
+        // 1. 显示 API 获取的赞助者（最新在前）
+        if (apiSponsors.length > 0) {
+            apiSponsors.forEach(s => {
+                const dateStr = formatYearMonth(s.lastPay);
+                html += `<li><span class="sponsor-date">${dateStr}</span><span class="sponsor-name"> - ${s.name}</span></li>`;
+            });
+        }
+        
+        // 2. 显示历史记录（置底）
+        if (HISTORY_RECORDS.length > 0) {
+            html += `<div class="history-divider"><span>历史记录</span></div>`;
+            HISTORY_RECORDS.forEach(record => {
+                // 解析历史记录格式：YYYY-MM - 名称
+                const match = record.match(/^(\d{4}-\d{2})\s*-\s*(.+)$/);
+                if (match) {
+                    html += `<li><span class="sponsor-date">${match[1]}</span><span class="sponsor-name"> - ${match[2]}</span></li>`;
+                } else {
+                    html += `<li><span class="sponsor-name">${record}</span></li>`;
+                }
+            });
+        }
+        
+        if (html === '') {
+            document.getElementById('empty').style.display = 'block';
+        } else {
+            listEl.innerHTML = html;
+            listEl.style.display = 'block';
+        }
+        
+        // 更新时间
+        const updateTime = new Date(data.updatedAt);
+        document.getElementById('updateInfo').textContent = 
+            '名单更新时间：' + updateTime.toLocaleString('zh-CN') + ' | 每6小时自动同步';
+        
+    } catch (error) {
+        console.error('加载失败:', error);
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+    }
+}
+
+// 页面加载时获取
+loadSponsors();
+
+// 每5分钟自动刷新
+setInterval(loadSponsors, 5 * 60 * 1000);
+</script>
 
 </body>
 
 </html>
-
