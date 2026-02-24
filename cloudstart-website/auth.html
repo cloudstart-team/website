@@ -48,6 +48,31 @@
             font-size: 28px;
         }
         
+        /* 返回首页链接 */
+        .back-home {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .back-home a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s;
+        }
+        
+        .back-home a:hover {
+            color: var(--primary);
+        }
+        
+        .back-home a::before {
+            content: "<";
+            font-weight: bold;
+        }
+        
         .tabs {
             display: flex;
             gap: 10px;
@@ -268,6 +293,12 @@
 <body>
     <div class="container" id="authContainer">
         <h1>CloudStart 账号</h1>
+        
+        <!-- 返回首页 -->
+        <div class="back-home">
+            <a href="index.html">返回首页</a>
+        </div>
+        
         <div id="message" class="message"></div>
         
         <div class="tabs" id="authTabs">
@@ -346,6 +377,12 @@
     <!-- 用户中心 -->
     <div class="container hidden" id="userContainer">
         <h1>用户中心</h1>
+        
+        <!-- 返回首页 -->
+        <div class="back-home">
+            <a href="index.html">返回首页</a>
+        </div>
+        
         <div id="userMessage" class="message"></div>
         
         <div class="user-info">
@@ -372,8 +409,6 @@
     <script>
         // ==================== 修改这里：API 地址 ====================
         const API_URL = 'https://auth-api.cloudstart.xyz';
-        // 如果自定义域名还没生效，临时用：
-        // const API_URL = 'https://cloudstart-api.cloudstart2025.workers.dev';
         
         let resetEmail = '';
         
@@ -534,7 +569,6 @@
             const newPassword = document.getElementById('resetPassword').value;
             
             try {
-                // 验证验证码
                 const verifyRes = await fetch(`${API_URL}/api/auth/verify-code`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -547,7 +581,6 @@
                     return;
                 }
                 
-                // 重置密码
                 const resetRes = await fetch(`${API_URL}/api/auth/reset-password`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -615,19 +648,16 @@
             hideDeleteModal();
         }
         
-        // 页面加载检查登录状态
         window.onload = () => {
             const token = localStorage.getItem('token');
             const user = localStorage.getItem('user');
             if (token && user) {
-                // 验证token是否有效
                 fetch(`${API_URL}/api/auth/me`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 }).then(res => res.json()).then(data => {
                     if (data.success) {
                         showUserCenter(data.user);
                     } else {
-                        // token过期，清除
                         localStorage.removeItem('token');
                         localStorage.removeItem('user');
                     }
