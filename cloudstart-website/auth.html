@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录/注册 - CloudStart</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #4a90d9;
+            --secondary: #5fa8e8;
+            --bg: #f0f4f8;
+            --card: #ffffff;
+            --text: #333333;
+            --text-light: #666666;
+            --error: #e74c3c;
+            --success: #27ae60;
+        }
+        
+        body {
+            font-family: "Microsoft YaHei", "SimSun", sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .password-strength {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .password-strength-bar {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s;
+            border-radius: 2px;
+        }
+        
+        .password-strength-bar.weak { width: 33%; background: var(--error); }
+        .password-strength-bar.medium { width: 66%; background: #f39c12; }
+        .password-strength-bar.strong { width: 100%; background: var(--success); }
+        
+        .password-hint {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+        
+        .password-hint.valid {
+            color: var(--success);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(74, 144, 217, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .message.error {
+            display: block;
+            background: #fdeaea;
+            color: var(--error);
+            border: 1px solid #f5c6cb;
+        }
+        
+        .message.success {
+            display: block;
+            background: #d4edda;
+            color: var(--success);
+            border: 1px solid #c3e6cb;
+        }
+        
+        .link {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-light);
+        }
+        
+        .link a {
+            color: var(--primary);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .link a:hover {
+            text-decoration: underline;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* 删除确认弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .modal h3 {
+            color: var(--error);
+            margin-bottom: 15px;
+        }
+        
+        .modal p {
+            color: var(--text-light);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .modal-btn.cancel {
+            background: #f0f0f0;
+            color: var(--text);
+        }
+        
+        .modal-btn.confirm {
+            background: var(--error);
+            color: white;
+        }
+        
+        .user-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .user-info h2 {
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+        
+        .user-info p {
+            color: var(--text-light);
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="authContainer">
+        <h1>CloudStart 账号</h1>
+        <div id="message" class="message"></div>
+        
+        <div class="tabs" id="authTabs">
+            <button class="tab active" onclick="switchTab('login')">登录</button>
+            <button class="tab" onclick="switchTab('register')">注册</button>
+        </div>
+        
+        <!-- 登录表单 -->
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="loginUsername" required placeholder="请输入用户名">
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="loginPassword" required placeholder="请输入密码">
+            </div>
+            <button type="submit" class="btn">登录</button>
+            <div class="link">
+                <a onclick="switchTab('forgot')">忘记密码？</a>
+            </div>
+        </form>
+        
+        <!-- 注册表单 -->
+        <form id="registerForm" class="hidden" onsubmit="handleRegister(event)">
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="regUsername" required placeholder="2-20位字母数字" minlength="2" maxlength="20">
+            </div>
+            <div class="form-group">
+                <label>邮箱</label>
+                <input type="email" id="regEmail" required placeholder="用于找回密码">
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="regPassword" required placeholder="至少6位，含字母数字符号" oninput="checkPasswordStrength()">
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="strengthBar"></div>
+                </div>
+                <div class="password-hint" id="passwordHint">
+                    密码需包含：字母、数字、符号，且至少6位
+                </div>
+            </div>
+            <button type="submit" class="btn">注册</button>
+            <div class="link">
+                已有账号？<a onclick="switchTab('login')">立即登录</a>
+            </div>
+        </form>
+        
+        <!-- 忘记密码 -->
+        <form id="forgotForm" class="hidden" onsubmit="handleForgot(event)">
+            <div class="form-group">
+                <label>注册邮箱</label>
+                <input type="email" id="forgotEmail" required placeholder="请输入注册时的邮箱">
+            </div>
+            <button type="submit" class="btn">发送验证码</button>
+            <div class="link">
+                <a onclick="switchTab('login')">返回登录</a>
+            </div>
+        </form>
+        
+        <!-- 重置密码 -->
+        <form id="resetForm" class="hidden" onsubmit="handleReset(event)">
+            <div class="form-group">
+                <label>验证码</label>
+                <input type="text" id="resetCode" required placeholder="请查收邮件中的验证码" maxlength="6">
+            </div>
+            <div class="form-group">
+                <label>新密码</label>
+                <input type="password" id="resetPassword" required placeholder="至少6位，含字母数字符号">
+            </div>
+            <button type="submit" class="btn">重置密码</button>
+        </form>
+    </div>
+    
+    <!-- 用户中心 -->
+    <div class="container hidden" id="userContainer">
+        <h1>用户中心</h1>
+        <div id="userMessage" class="message"></div>
+        
+        <div class="user-info">
+            <h2 id="displayUsername">用户名</h2>
+            <p id="displayEmail">邮箱</p>
+        </div>
+        
+        <button class="btn" onclick="logout()" style="margin-bottom: 15px;">退出登录</button>
+        <button class="btn" onclick="showDeleteModal()" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">删除账号</button>
+    </div>
+    
+    <!-- 删除确认弹窗 -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <h3>警告</h3>
+            <p>删除账号将永久清除您的用户名和密码！<br>邮箱将保留90天用于安全审计。<br>此操作不可撤销，确定要继续吗？</p>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="hideDeleteModal()">取消</button>
+                <button class="modal-btn confirm" onclick="confirmDelete()">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 修改这里：API 地址 ====================
+        const API_URL = 'https://auth-api.cloudstart.xyz';
+        // 如果自定义域名还没生效，临时用：
+        // const API_URL = 'https://cloudstart-api.cloudstart2025.workers.dev';
+        
+        let resetEmail = '';
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('form').forEach(f => f.classList.add('hidden'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('authTabs').classList.remove('hidden');
+            } else if (tab === 'register') {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('registerForm').classList.remove('hidden');
+                document.getElementById('authTabs').classList.remove('hidden');
+            } else if (tab === 'forgot') {
+                document.getElementById('authTabs').classList.add('hidden');
+                document.getElementById('forgotForm').classList.remove('hidden');
+            }
+        }
+        
+        function checkPasswordStrength() {
+            const password = document.getElementById('regPassword').value;
+            const bar = document.getElementById('strengthBar');
+            const hint = document.getElementById('passwordHint');
+            
+            const hasLetter = /[a-zA-Z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            const isLongEnough = password.length >= 6;
+            
+            let strength = 0;
+            if (hasLetter) strength++;
+            if (hasNumber) strength++;
+            if (hasSymbol) strength++;
+            if (isLongEnough && strength >= 3) strength = 3;
+            
+            bar.className = 'password-strength-bar';
+            if (strength === 1) bar.classList.add('weak');
+            else if (strength === 2) bar.classList.add('medium');
+            else if (strength >= 3) bar.classList.add('strong');
+            
+            const requirements = [];
+            if (!isLongEnough) requirements.push('至少6位');
+            if (!hasLetter) requirements.push('字母');
+            if (!hasNumber) requirements.push('数字');
+            if (!hasSymbol) requirements.push('符号');
+            
+            if (requirements.length === 0) {
+                hint.textContent = '密码强度符合要求';
+                hint.classList.add('valid');
+            } else {
+                hint.textContent = '还需：' + requirements.join('、');
+                hint.classList.remove('valid');
+            }
+        }
+        
+        function showMessage(msg, isError = false) {
+            const el = document.getElementById('message');
+            el.textContent = msg;
+            el.className = 'message ' + (isError ? 'error' : 'success');
+            setTimeout(() => el.className = 'message', 5000);
+        }
+        
+        function showUserMessage(msg, isError = false) {
+            const el = document.getElementById('userMessage');
+            el.textContent = msg;
+            el.className = 'message ' + (isError ? 'error' : 'success');
+            setTimeout(() => el.className = 'message', 5000);
+        }
+        
+        async function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            const hasLetter = /[a-zA-Z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const hasSymbol = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            
+            if (password.length < 6 || !hasLetter || !hasNumber || !hasSymbol) {
+                showMessage('密码必须至少6位，且包含字母、数字和符号', true);
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_URL}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showMessage('注册成功！请登录');
+                    switchTab('login');
+                } else {
+                    showMessage(data.error, true);
+                }
+            } catch (e) {
+                showMessage('网络错误，请检查网络或稍后重试', true);
+            }
+        }
+        
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showUserCenter(data.user);
+                } else {
+                    showMessage(data.error, true);
+                }
+            } catch (e) {
+                showMessage('网络错误，请检查网络或稍后重试', true);
+            }
+        }
+        
+        async function handleForgot(e) {
+            e.preventDefault();
+            resetEmail = document.getElementById('forgotEmail').value;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: resetEmail })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    showMessage('验证码已发送，请查收邮件');
+                    document.getElementById('forgotForm').classList.add('hidden');
+                    document.getElementById('resetForm').classList.remove('hidden');
+                } else {
+                    showMessage(data.error, true);
+                }
+            } catch (e) {
+                showMessage('网络错误，请检查网络或稍后重试', true);
+            }
+        }
+        
+        async function handleReset(e) {
+            e.preventDefault();
+            const code = document.getElementById('resetCode').value;
+            const newPassword = document.getElementById('resetPassword').value;
+            
+            try {
+                // 验证验证码
+                const verifyRes = await fetch(`${API_URL}/api/auth/verify-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: resetEmail, code })
+                });
+                const verifyData = await verifyRes.json();
+                
+                if (!verifyData.success) {
+                    showMessage(verifyData.error, true);
+                    return;
+                }
+                
+                // 重置密码
+                const resetRes = await fetch(`${API_URL}/api/auth/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ resetToken: verifyData.resetToken, newPassword })
+                });
+                const resetData = await resetRes.json();
+                
+                if (resetData.success) {
+                    showMessage('密码重置成功！请登录');
+                    document.getElementById('resetForm').classList.add('hidden');
+                    document.getElementById('authTabs').classList.remove('hidden');
+                    document.getElementById('loginForm').classList.remove('hidden');
+                } else {
+                    showMessage(resetData.error, true);
+                }
+            } catch (e) {
+                showMessage('网络错误，请检查网络或稍后重试', true);
+            }
+        }
+        
+        function showUserCenter(user) {
+            document.getElementById('authContainer').classList.add('hidden');
+            document.getElementById('userContainer').classList.remove('hidden');
+            document.getElementById('displayUsername').textContent = user.username;
+            document.getElementById('displayEmail').textContent = user.email;
+        }
+        
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            location.reload();
+        }
+        
+        function showDeleteModal() {
+            document.getElementById('deleteModal').classList.add('active');
+        }
+        
+        function hideDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+        
+        async function confirmDelete() {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            
+            try {
+                const res = await fetch(`${API_URL}/api/auth/user`, {
+                    method: 'DELETE',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert('账号已删除');
+                    logout();
+                } else {
+                    showUserMessage(data.error, true);
+                }
+            } catch (e) {
+                showUserMessage('删除失败，请重试', true);
+            }
+            hideDeleteModal();
+        }
+        
+        // 页面加载检查登录状态
+        window.onload = () => {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            if (token && user) {
+                // 验证token是否有效
+                fetch(`${API_URL}/api/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }).then(res => res.json()).then(data => {
+                    if (data.success) {
+                        showUserCenter(data.user);
+                    } else {
+                        // token过期，清除
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                    }
+                });
+            }
+        };
+    </script>
+</body>
+</html>
