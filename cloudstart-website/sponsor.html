@@ -319,13 +319,11 @@ CloudStart（云启）团队承诺，所有赞助仅用于团队开发和运营�
 // Cloudflare Workers API 地址
 const API_URL = 'https://api.cloudstart.xyz/api/sponsors';
 
-// 历史记录（微信赞助，不计入统计，仅展示）
+// 历史记录（微信赞助，计入总统计）
+// 格式: { date: 'YYYY-MM', name: '赞助者名称', count: 人数, amount: 金额 }
 const HISTORY_RECORDS = [
-    '2026-02 - 匿名赞助者*2'
+    { date: '2026-02', name: '匿名赞助者*2', count: 2, amount: 101 }
 ];
-
-// 历史记录总金额（微信赞助金额）
-const HISTORY_AMOUNT = 101;
 
 // ==================== 功能代码 ====================
 
@@ -335,7 +333,6 @@ function formatYearMonth(timestamp) {
     
     let ts = parseInt(timestamp);
     if (isNaN(ts)) {
-        // 尝试作为字符串日期解析
         const date = new Date(timestamp);
         if (isNaN(date.getTime())) return '未知时间';
         const year = date.getFullYear();
@@ -343,7 +340,7 @@ function formatYearMonth(timestamp) {
         return `${year}-${month}`;
     }
     
-    // 判断是秒级还是毫秒级（小于 1e10 认为是秒级）
+    // 判断是秒级还是毫秒级
     if (ts < 10000000000) {
         ts = ts * 1000;
     }
@@ -370,9 +367,13 @@ async function loadSponsors() {
         // 获取 API 赞助者（爱发电）
         const apiSponsors = data.sponsors || [];
         
-        // 计算统计数据（仅爱发电数据）
-        const totalCount = apiSponsors.length;
-        const totalAmount = apiSponsors.reduce((sum, s) => sum + (s.amount || 0), 0);
+        // 计算历史记录总计
+        const historyCount = HISTORY_RECORDS.reduce((sum, r) => sum + (r.count || 1), 0);
+        const historyAmount = HISTORY_RECORDS.reduce((sum, r) => sum + (r.amount || 0), 0);
+        
+        // 计算统计数据（爱发电 + 微信）
+        const totalCount = apiSponsors.length + historyCount;
+        const totalAmount = apiSponsors.reduce((sum, s) => sum + (s.amount || 0), 0) + historyAmount;
         
         document.getElementById('totalCount').textContent = totalCount;
         document.getElementById('totalAmount').textContent = Math.floor(totalAmount);
@@ -390,16 +391,11 @@ async function loadSponsors() {
             });
         }
         
-        // 2. 显示历史记录（置底，不计入统计）
+        // 2. 显示历史记录（置底，但已计入统计）
         if (HISTORY_RECORDS.length > 0) {
             html += `<div class="history-divider"><span>历史记录（微信赞助）</span></div>`;
             HISTORY_RECORDS.forEach(record => {
-                const match = record.match(/^(\d{4}-\d{2})\s*-\s*(.+)$/);
-                if (match) {
-                    html += `<li><span class="sponsor-date">${match[1]}</span><span class="sponsor-name"> - ${match[2]}</span></li>`;
-                } else {
-                    html += `<li><span class="sponsor-name">${record}</span></li>`;
-                }
+                html += `<li><span class="sponsor-date">${record.date}</span><span class="sponsor-name"> - ${record.name}</span></li>`;
             });
         }
         
