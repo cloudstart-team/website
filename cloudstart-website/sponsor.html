@@ -320,7 +320,6 @@ CloudStart（云启）团队承诺，所有赞助仅用于团队开发和运营�
 const API_URL = 'https://api.cloudstart.xyz/api/sponsors';
 
 // 历史记录（微信赞助，不计入统计，仅展示）
-// 格式: 'YYYY-MM - 赞助者名称'
 const HISTORY_RECORDS = [
     '2026-02 - 匿名赞助者*2'
 ];
@@ -330,19 +329,27 @@ const HISTORY_AMOUNT = 101;
 
 // ==================== 功能代码 ====================
 
-function formatYearMonth(timeStr) {
-    // 严格验证日期
-    if (!timeStr || timeStr === 'null' || timeStr === 'undefined' || timeStr === '') {
-        return null; // 返回 null 表示无效日期
+// 格式化时间戳（支持毫秒/秒级时间戳和字符串）
+function formatYearMonth(timestamp) {
+    if (!timestamp) return '未知时间';
+    
+    let ts = parseInt(timestamp);
+    if (isNaN(ts)) {
+        // 尝试作为字符串日期解析
+        const date = new Date(timestamp);
+        if (isNaN(date.getTime())) return '未知时间';
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        return `${year}-${month}`;
     }
     
-    const date = new Date(timeStr);
-    
-    // 检查日期是否有效且合理（2020年以后）
-    if (isNaN(date.getTime()) || date.getFullYear() < 2020 || date.getFullYear() > 2100) {
-        console.warn('Invalid date:', timeStr);
-        return null;
+    // 判断是秒级还是毫秒级（小于 1e10 认为是秒级）
+    if (ts < 10000000000) {
+        ts = ts * 1000;
     }
+    
+    const date = new Date(ts);
+    if (isNaN(date.getTime())) return '未知时间';
     
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -363,17 +370,12 @@ async function loadSponsors() {
         // 获取 API 赞助者（爱发电）
         const apiSponsors = data.sponsors || [];
         
-        // 计算统计数据
-        // 注意：历史记录不计入统计，只显示爱发电的数据
+        // 计算统计数据（仅爱发电数据）
         const totalCount = apiSponsors.length;
         const totalAmount = apiSponsors.reduce((sum, s) => sum + (s.amount || 0), 0);
         
-        // 显示统计（爱发电数据 + 历史记录展示）
-        const displayCount = totalCount;
-        const displayAmount = totalAmount; // 只显示爱发电金额，历史金额单独展示
-        
-        document.getElementById('totalCount').textContent = displayCount;
-        document.getElementById('totalAmount').textContent = Math.floor(displayAmount);
+        document.getElementById('totalCount').textContent = totalCount;
+        document.getElementById('totalAmount').textContent = Math.floor(totalAmount);
         document.getElementById('statsBox').style.display = 'grid';
         
         const listEl = document.getElementById('sponsorsList');
@@ -383,16 +385,7 @@ async function loadSponsors() {
         if (apiSponsors.length > 0) {
             apiSponsors.forEach(s => {
                 const dateStr = formatYearMonth(s.lastPay);
-                
-                // 如果日期无效，跳过此记录（或显示为未知）
-                if (!dateStr) {
-                    console.warn('Skipping sponsor with invalid date:', s);
-                    return;
-                }
-                
-                // 确保有名称
                 const name = s.name || '匿名赞助者';
-                
                 html += `<li><span class="sponsor-date">${dateStr}</span><span class="sponsor-name"> - ${name}</span></li>`;
             });
         }
