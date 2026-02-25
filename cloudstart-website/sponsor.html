@@ -314,21 +314,36 @@ CloudStart（云启）团队承诺，所有赞助仅用于团队开发和运营�
 </footer>
 
 <script>
-// ==================== 需要修改的配置 ====================
+// ==================== 配置 ====================
 
-// Cloudflare Workers API 地址（修改为你的地址）
+// Cloudflare Workers API 地址
 const API_URL = 'https://api.cloudstart.xyz/api/sponsors';
 
-// 历史记录（在更换为爱发电赞助前赞助的赞助者，置底显示）
+// 历史记录（微信赞助，不计入统计，仅展示）
 // 格式: 'YYYY-MM - 赞助者名称'
 const HISTORY_RECORDS = [
     '2026-02 - 匿名赞助者*2'
 ];
 
-// ==================== 功能代码（无需修改） ====================
+// 历史记录总金额（微信赞助金额）
+const HISTORY_AMOUNT = 101;
+
+// ==================== 功能代码 ====================
 
 function formatYearMonth(timeStr) {
+    // 严格验证日期
+    if (!timeStr || timeStr === 'null' || timeStr === 'undefined' || timeStr === '') {
+        return null; // 返回 null 表示无效日期
+    }
+    
     const date = new Date(timeStr);
+    
+    // 检查日期是否有效且合理（2020年以后）
+    if (isNaN(date.getTime()) || date.getFullYear() < 2020 || date.getFullYear() > 2100) {
+        console.warn('Invalid date:', timeStr);
+        return null;
+    }
+    
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     return `${year}-${month}`;
@@ -342,38 +357,50 @@ async function loadSponsors() {
         document.getElementById('loading').style.display = 'none';
         
         if (!data.success) {
-            throw new Error(data.error);
+            throw new Error(data.error || 'API 返回错误');
         }
         
-        // 计算统计数据（包含历史记录）
+        // 获取 API 赞助者（爱发电）
         const apiSponsors = data.sponsors || [];
-        const historyCount = HISTORY_RECORDS.length > 0 ? 2 : 0; // 匿名*2 算2人
-        const totalCount = apiSponsors.length + historyCount;
         
-        // 计算总金额（API数据 + 历史记录估算，这里假设匿名*2共100元，你可以修改）
-        const historyAmount = 101; // 修改这里：历史记录的总金额
-        const totalAmount = apiSponsors.reduce((sum, s) => sum + s.amount, 0) + historyAmount;
+        // 计算统计数据
+        // 注意：历史记录不计入统计，只显示爱发电的数据
+        const totalCount = apiSponsors.length;
+        const totalAmount = apiSponsors.reduce((sum, s) => sum + (s.amount || 0), 0);
         
-        document.getElementById('totalCount').textContent = totalCount;
-        document.getElementById('totalAmount').textContent = Math.floor(totalAmount);
+        // 显示统计（爱发电数据 + 历史记录展示）
+        const displayCount = totalCount;
+        const displayAmount = totalAmount; // 只显示爱发电金额，历史金额单独展示
+        
+        document.getElementById('totalCount').textContent = displayCount;
+        document.getElementById('totalAmount').textContent = Math.floor(displayAmount);
         document.getElementById('statsBox').style.display = 'grid';
         
         const listEl = document.getElementById('sponsorsList');
         let html = '';
         
-        // 1. 显示 API 获取的赞助者（最新在前）
+        // 1. 显示 API 获取的赞助者（爱发电，最新在前）
         if (apiSponsors.length > 0) {
             apiSponsors.forEach(s => {
                 const dateStr = formatYearMonth(s.lastPay);
-                html += `<li><span class="sponsor-date">${dateStr}</span><span class="sponsor-name"> - ${s.name}</span></li>`;
+                
+                // 如果日期无效，跳过此记录（或显示为未知）
+                if (!dateStr) {
+                    console.warn('Skipping sponsor with invalid date:', s);
+                    return;
+                }
+                
+                // 确保有名称
+                const name = s.name || '匿名赞助者';
+                
+                html += `<li><span class="sponsor-date">${dateStr}</span><span class="sponsor-name"> - ${name}</span></li>`;
             });
         }
         
-        // 2. 显示历史记录（置底）
+        // 2. 显示历史记录（置底，不计入统计）
         if (HISTORY_RECORDS.length > 0) {
-            html += `<div class="history-divider"><span>历史记录</span></div>`;
+            html += `<div class="history-divider"><span>历史记录（微信赞助）</span></div>`;
             HISTORY_RECORDS.forEach(record => {
-                // 解析历史记录格式：YYYY-MM - 名称
                 const match = record.match(/^(\d{4}-\d{2})\s*-\s*(.+)$/);
                 if (match) {
                     html += `<li><span class="sponsor-date">${match[1]}</span><span class="sponsor-name"> - ${match[2]}</span></li>`;
@@ -399,6 +426,7 @@ async function loadSponsors() {
         console.error('加载失败:', error);
         document.getElementById('loading').style.display = 'none';
         document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = '加载失败：' + error.message;
     }
 }
 
@@ -410,6 +438,4 @@ setInterval(loadSponsors, 5 * 60 * 1000);
 </script>
 
 </body>
-
 </html>
-
